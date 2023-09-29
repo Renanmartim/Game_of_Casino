@@ -9,6 +9,7 @@
         <outputRelativeToContentRoot value="true" />
         <module name="betting-service" />
         <module name="CasinoProject" />
+        <module name="server-eureka" />
       </profile>
     </annotationProcessing>
   </component>
@@ -16,6 +17,7 @@
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="CasinoProject" options="-parameters" />
       <module name="betting-service" options="-parameters" />
+      <module name="server-eureka" options="-parameters" />
     </option>
   </component>
 </project>

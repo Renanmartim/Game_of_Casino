@@ -22,7 +22,7 @@ public class PlayerService {
 
         var user = playerRepository.save(playerNew);
 
-        return "Player created Sucess!";
+        return "Player creaetd Sucess!";
     }
 
     public String playLogic(PlayerBet userplay) {
