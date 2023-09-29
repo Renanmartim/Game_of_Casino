@@ -7,6 +7,8 @@ import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class PlayerService {
@@ -31,5 +33,9 @@ public class PlayerService {
             return "Your proposal is received!";
         }
         return "Your proposal is NOT received!";
+    }
+
+    public List<Player> findAllPlayers() {
+        return playerRepository.findAll();
     }
 }

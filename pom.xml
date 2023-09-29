@@ -20,6 +20,7 @@
         <module>betting-service</module>
         <module>player-service</module>
         <module>server-eureka</module>
+        <module>gateway-service</module>
     </modules>
 
     <properties>

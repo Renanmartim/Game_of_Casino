@@ -7,9 +7,10 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
+        <module name="server-eureka" />
         <module name="betting-service" />
         <module name="CasinoProject" />
-        <module name="server-eureka" />
+        <module name="gateway-service" />
       </profile>
     </annotationProcessing>
   </component>
@@ -17,6 +18,7 @@
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="CasinoProject" options="-parameters" />
       <module name="betting-service" options="-parameters" />
+      <module name="gateway-service" options="-parameters" />
       <module name="server-eureka" options="-parameters" />
     </option>
   </component>
