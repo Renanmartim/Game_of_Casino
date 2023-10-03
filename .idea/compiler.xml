@@ -13,6 +13,9 @@
         <module name="gateway-service" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="untitled" target="17" />
+    </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
@@ -20,6 +23,7 @@
       <module name="betting-service" options="-parameters" />
       <module name="gateway-service" options="-parameters" />
       <module name="server-eureka" options="-parameters" />
+      <module name="untitled" options="-parameters" />
     </option>
   </component>
 </project>

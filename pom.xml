@@ -21,6 +21,7 @@
         <module>player-service</module>
         <module>server-eureka</module>
         <module>gateway-service</module>
+        <module>profit-service</module>
     </modules>
 
     <properties>
