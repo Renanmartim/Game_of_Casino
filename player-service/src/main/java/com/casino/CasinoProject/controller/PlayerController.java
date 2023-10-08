@@ -3,6 +3,7 @@ package com.casino.CasinoProject.controller;
 import com.casino.CasinoProject.dto.PlayerBet;
 import com.casino.CasinoProject.entity.Player;
 import com.casino.CasinoProject.service.PlayerService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -25,7 +26,7 @@ public class PlayerController {
     }
 
     @PostMapping("/play")
-    public ResponseEntity<String> playGame(@RequestBody PlayerBet Userplay) {
+    public ResponseEntity<String> playGame(@RequestBody PlayerBet Userplay) throws JsonProcessingException {
         var PlayUser = playerService.playLogic(Userplay);
         return ResponseEntity.ok().body(PlayUser);
     }

@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.entity.BettingPlayer;
 import org.example.service.BettingService;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
