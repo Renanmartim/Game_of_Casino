@@ -34,9 +34,9 @@ public class BettingService {
 
         String randomNumber = randomPlayer.getNumber().toString();
 
-        Integer valueReturn = randomPlayer.getBet_value();
-
         int valueFinal = valueReturnBetting(randomPlayer.getBet_value(), playerAll);
+
+        bettingRepository.deleteAll();
 
         return "The number sorted is: " + randomNumber +
                 " " +

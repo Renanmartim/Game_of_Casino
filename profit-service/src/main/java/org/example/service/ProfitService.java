@@ -1,37 +1,53 @@
 package org.example.service;
 
 import lombok.RequiredArgsConstructor;
-import org.example.controller.ProfitController;
 import org.example.entity.Profit;
 import org.example.repository.ProfitRepository;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
 public class ProfitService {
 
     private final ProfitRepository profitRepository;
+
     public String saveProfit(Profit profit) {
-        var saveProfit = profitRepository.save(profit);
+        Profit profitBd = profitRepository.getObject();
+
+        Long currentProfit = profitBd.getProfit_casino();
+        Long newProfit = currentProfit + profit.getProfit_casino();
+
+        profitBd.setProfit_casino(newProfit);
+        profitBd.setTime(LocalDateTime.now());
+
+        profitRepository.save(profitBd);
+
         return "Profit was saved!";
     }
 
-    public Long requireProfit(Long profitRequired) {
-        Long value = profitRepository.getProfit();
+    public String requireProfit(Long profitRequired) {
+        Profit profit = profitRepository.getObject();
 
-        if (profitRequired > value){
-            throw new IllegalArgumentException("This value is incorrect!");
+        Long currentProfit = profit.getProfit_casino();
+
+        if (profitRequired > currentProfit) {
+            return ("Required profit is incorrect!");
         }
-        Long valueActual = profitRequired - value;
+        else {
 
-        var profit = profitRepository.getObject();
+            Long profitDifference = currentProfit - profitRequired;
 
-        profit.setProfit_casino(valueActual);
+            profit.setProfit_casino(profitDifference);
 
-        profitRepository.save(profit);
+            profitRepository.save(profit);
 
-        return profitRequired;
+            return "Required was ok!";
+        }
+    }
 
+    public Long profitValue() {
+        return profitRepository.getObject().getProfit_casino();
     }
 }
