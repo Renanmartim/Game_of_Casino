@@ -22,7 +22,7 @@ public class ProfitController {
     }
 
     @PostMapping("/save")
-    public ResponseEntity<String> saveProfit(@RequestBody Profit profit){
+    public ResponseEntity<String> saveProfit(@RequestBody Long profit){
         var saveNewProfit = profitService.saveProfit(profit);
         return ResponseEntity.ok().body(saveNewProfit);
     }

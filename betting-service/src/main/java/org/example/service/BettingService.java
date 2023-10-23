@@ -1,9 +1,13 @@
 package org.example.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.example.entity.BettingPlayer;
 import org.example.repository.BettingRepository;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
 import java.time.LocalTime;
@@ -50,9 +54,16 @@ public class BettingService {
 
         Integer valuePlayers = (int) (totalBetAmount - (totalBetAmount * 0.3));
 
+        Integer valueOfProfit = (int) (totalBetAmount * 0.3);
+
         int multipli = valuePlayers / value;
 
         int valueFinalPlayer = value * multipli;
+
+        // -----------------------
+
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<Long> response = restTemplate.postForEntity("http://localhost:8987/api/profit/save", valueOfProfit, Long.class);
 
         return valueFinalPlayer;
     }

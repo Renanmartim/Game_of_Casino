@@ -13,11 +13,11 @@ public class ProfitService {
 
     private final ProfitRepository profitRepository;
 
-    public String saveProfit(Profit profit) {
+    public String saveProfit(Long profit) {
         Profit profitBd = profitRepository.getObject();
 
         Long currentProfit = profitBd.getProfit_casino();
-        Long newProfit = currentProfit + profit.getProfit_casino();
+        Long newProfit = currentProfit + profit;
 
         profitBd.setProfit_casino(newProfit);
         profitBd.setTime(LocalDateTime.now());
