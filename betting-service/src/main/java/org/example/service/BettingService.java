@@ -24,7 +24,11 @@ public class BettingService {
     public String start(BettingPlayer bettingPlayer) {
         var player = bettingRepository.save(bettingPlayer);
 
-        return String.valueOf(lc);
+        return String.valueOf("Player saved!");
+    }
+
+    public LocalTime getDate() {
+        return lc;
     }
 
     public String sorted() {
