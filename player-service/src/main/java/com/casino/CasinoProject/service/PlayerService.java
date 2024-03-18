@@ -5,8 +5,7 @@ import com.casino.CasinoProject.entity.Player;
 import com.casino.CasinoProject.repository.PlayerRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.AllArgsConstructor;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
@@ -17,12 +16,16 @@ import java.util.List;
 import java.util.Map;
 
 @Service
-@RequiredArgsConstructor
 public class PlayerService {
 
     private final PlayerRepository playerRepository;
 
-    private final RestTemplate restTemplate;
+    private RestTemplate restTemplate;
+
+
+    private PlayerService (PlayerRepository playerRepository) {
+        this.playerRepository = playerRepository;
+    }
 
     public String saveNewUser(Player playerNew) {
         if (playerNew == null) {

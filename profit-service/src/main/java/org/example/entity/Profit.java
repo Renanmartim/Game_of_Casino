@@ -26,4 +26,24 @@ public class Profit {
     @JsonIgnore
     private LocalDateTime time;
 
+    public String getId() {
+        return id;
+    }
+
+
+    public Long getProfit_casino() {
+        return profit_casino;
+    }
+
+    public void setProfit_casino(Long profit_casino) {
+        this.profit_casino = profit_casino;
+    }
+
+    public LocalDateTime getTime() {
+        return time;
+    }
+
+    public void setTime(LocalDateTime time) {
+        this.time = time;
+    }
 }

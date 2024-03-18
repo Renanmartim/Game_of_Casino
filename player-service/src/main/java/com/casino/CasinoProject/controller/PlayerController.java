@@ -6,6 +6,7 @@ import com.casino.CasinoProject.service.PlayerService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,10 +15,13 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/casino")
-@RequiredArgsConstructor
 public class PlayerController {
 
     private final PlayerService playerService;
+
+    private PlayerController (PlayerService playerService) {
+        this.playerService = playerService;
+    }
 
     @PostMapping()
     public ResponseEntity<String> saveNewUser(@RequestBody Player playerNew) {

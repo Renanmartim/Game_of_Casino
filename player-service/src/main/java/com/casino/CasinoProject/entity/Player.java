@@ -12,11 +12,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import java.math.BigDecimal;
 
 @Document
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-@Getter
-@Setter
 public class Player {
 
     @Id
@@ -37,5 +32,41 @@ public class Player {
     @NotNull
     @Size(min = 6)
     private String senha;
+
+    public String getId() {
+        return id;
+    }
+
+    public BigDecimal getCpf() {
+        return cpf;
+    }
+
+    public void setCpf(BigDecimal cpf) {
+        this.cpf = cpf;
+    }
+
+    public String getName_full() {
+        return name_full;
+    }
+
+    public void setName_full(String name_full) {
+        this.name_full = name_full;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getSenha() {
+        return senha;
+    }
+
+    public void setSenha(String senha) {
+        this.senha = senha;
+    }
 
 }

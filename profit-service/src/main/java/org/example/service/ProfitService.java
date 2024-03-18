@@ -8,10 +8,13 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 
 @Service
-@RequiredArgsConstructor
 public class ProfitService {
 
     private final ProfitRepository profitRepository;
+
+    private ProfitService (ProfitRepository profitRepository) {
+        this.profitRepository = profitRepository;
+    }
 
     public String saveProfit(Long profit) {
         Profit profitBd = profitRepository.getObject();

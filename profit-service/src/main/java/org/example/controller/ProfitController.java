@@ -9,10 +9,13 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/profit")
-@RequiredArgsConstructor
 public class ProfitController {
 
     private final ProfitService profitService;
+
+    private ProfitController (ProfitService profitService) {
+        this.profitService = profitService;
+    }
 
     @GetMapping
     public ResponseEntity<Long> takeValue(){

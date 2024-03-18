@@ -7,11 +7,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import java.math.BigDecimal;
 
 @Document
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class BettingPlayer {
 
     @Id
@@ -21,4 +16,31 @@ public class BettingPlayer {
     private Integer bet_value;
     private Long number;
 
+    public String getId() {
+        return id;
+    }
+
+    public Long getCpf() {
+        return cpf;
+    }
+
+    public void setCpf(Long cpf) {
+        this.cpf = cpf;
+    }
+
+    public Integer getBet_value() {
+        return bet_value;
+    }
+
+    public void setBet_value(Integer bet_value) {
+        this.bet_value = bet_value;
+    }
+
+    public Long getNumber() {
+        return number;
+    }
+
+    public void setNumber(Long number) {
+        this.number = number;
+    }
 }
