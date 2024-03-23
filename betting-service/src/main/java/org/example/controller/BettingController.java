@@ -2,6 +2,7 @@ package org.example.controller;
 
 import org.example.entity.BettingPlayer;
 import org.example.service.BettingService;
+import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
@@ -13,6 +14,7 @@ import java.time.Instant;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static reactor.core.publisher.Signal.subscribe;
 
@@ -21,14 +23,32 @@ import static reactor.core.publisher.Signal.subscribe;
 public class BettingController {
 
     private final BettingService bettingService;
-    private Mono<String> sortedNumber;
+    private volatile Mono<String> sortedNumber;
     private final Map<Long, String> playerStatusCache = new ConcurrentHashMap<>();
     private final MonoProcessor<Instant> firstRequestTimeProcessor = MonoProcessor.create();
     private final MonoProcessor<String> resultProcessor = MonoProcessor.create();
+    private final AtomicBoolean drawLock = new AtomicBoolean(false);
 
-    public BettingController(BettingService bettingService) {
+    private final RedisOperations<Object, Object> redisOperations;
+
+
+    public BettingController(BettingService bettingService, RedisOperations<Object, Object> redisOperations) {
         this.bettingService = bettingService;
+        this.redisOperations = redisOperations;
     }
+
+    private final Object drawLockObject = new Object();
+
+    public synchronized Mono<String> drawNumber() {
+        if (sortedNumber == null) {
+            System.out.println(sortedNumber);
+            sortedNumber = bettingService.sorted();
+        }
+        return sortedNumber;
+    }
+
+    private final ConcurrentHashMap<String, String> resultStore = new ConcurrentHashMap<>();
+
 
     @PostMapping("/start")
     public Flux<ServerSentEvent<String>> startGame(@RequestBody BettingPlayer bettingPlayer) {
@@ -46,10 +66,11 @@ public class BettingController {
                 return;
             }
 
-            AtomicBoolean gameEnded = new AtomicBoolean(false); // Flag to indicate game end
+
+            MonoProcessor<Void> gameEndedProcessor = MonoProcessor.create(); // Signal game end
 
             Flux.interval(Duration.ofSeconds(10))
-                    .takeUntil(tick -> gameEnded.get()) // Terminate when gameEnded is true
+                    .takeUntilOther(gameEndedProcessor) // Terminate when gameEndedProcessor signals
                     .flatMap(tick -> {
                         Instant currentTime = Instant.now();
                         Duration elapsedTime = Duration.between(startTime, currentTime);
@@ -57,48 +78,68 @@ public class BettingController {
                         System.out.println("Elapsed time: " + elapsedTime);
                         System.out.println("Remaining time: " + remainingTime);
 
-                        if (remainingTime.isNegative() || remainingTime.isZero()) {
-                            gameEnded.set(true); // Set flag to true to end the game
-                            return bettingService.sorted()
-                                    .map(result -> ServerSentEvent.<String>builder()
+                        synchronized (drawLock) {
+                            if (gameEndedProcessor.isTerminated()) {
+                                System.out.println("AQUI 2 _>>>");
+                                sink.complete(); // Stop sending events to the client
+                                return Mono.empty();
+                            }
+                            if (remainingTime.isNegative() || remainingTime.isZero()) {
+                                if (resultStore.containsKey("sorted-number")) {
+                                    // A stored result was found
+                                    sink.next(ServerSentEvent.<String>builder()
                                             .event("result")
-                                            .data("Final result: " + result)
-                                            .build())
-                                    .flatMap(event -> {
-                                        sink.next(event);
-                                        sink.complete();
-                                        return Mono.empty();
-                                    });
-                        } else {
-                            if (playerStatusCache.containsKey(bettingPlayer.getNumber())) {
-                                return Mono.just(ServerSentEvent.<String>builder()
-                                        .event("update")
-                                        .data(playerStatusCache.get(bettingPlayer.getNumber()) + " Wait " + remainingTime.toMinutes() + " minutes.")
-                                        .build());
-                            } else {
-                                return bettingService.start(bettingPlayer)
-                                        .flatMap(playerStatus -> {
-                                            if (playerStatus.startsWith("Error: ")) {
-                                                return Mono.just(ServerSentEvent.<String>builder()
-                                                        .event("error")
-                                                        .data(playerStatus)
+                                            .data("Final result: " + resultStore.get("sorted-number"))
+                                            .build());
+                                    sink.complete();
+
+                                    gameEndedProcessor.onComplete();
+                                    return Mono.empty();
+                                } else {
+                                    // No stored result was found
+                                    return drawNumber()
+                                            .flatMap(result -> {
+                                                resultStore.put("sorted-number", result);
+                                                sink.next(ServerSentEvent.<String>builder()
+                                                        .event("result")
+                                                        .data("Final result: " + result)
                                                         .build());
-                                            } else {
-                                                playerStatusCache.put(bettingPlayer.getNumber(), playerStatus);
-                                                return Mono.just(ServerSentEvent.<String>builder()
-                                                        .event("update")
-                                                        .data(playerStatus + " Please wait " + remainingTime.toMinutes() + " minutes.")
-                                                        .build());
-                                            }
-                                        });
+                                                sink.complete();
+
+                                                gameEndedProcessor.onComplete();
+
+                                                return Mono.empty();
+                                            });
+                                }
+                            }else {
+                                if (playerStatusCache.containsKey(bettingPlayer.getNumber())) {
+                                    return Mono.just(ServerSentEvent.<String>builder()
+                                            .event("update")
+                                            .data(playerStatusCache.get(bettingPlayer.getNumber()) + " Wait " + remainingTime.toMinutes() + " minutes.")
+                                            .build());
+                                } else {
+                                    return bettingService.start(bettingPlayer)
+                                            .flatMap(playerStatus -> {
+                                                if (playerStatus.startsWith("Error: ")) {
+                                                    return Mono.just(ServerSentEvent.<String>builder()
+                                                            .event("error")
+                                                            .data(playerStatus)
+                                                            .build());
+                                                } else {
+                                                    playerStatusCache.put(bettingPlayer.getNumber(), playerStatus);
+                                                    return Mono.just(ServerSentEvent.<String>builder()
+                                                            .event("update")
+                                                            .data(playerStatus + " Please wait " + remainingTime.toMinutes() + " minutes.")
+                                                            .build());
+                                                }
+                                            });
+                                }
                             }
                         }
                     })
                     .subscribe(sink::next, sink::error, sink::complete);
         });
     }
-
-
 
     @GetMapping("/result")
     public String getResult() {
@@ -109,5 +150,11 @@ public class BettingController {
         System.out.println("Initializing first request time...");
         Instant now = Instant.now();
         firstRequestTimeProcessor.onNext(now);
+    }
+
+    private AtomicInteger restarts = new AtomicInteger(0);
+
+    private void restartServer() {
+        System.out.println("Server restarted. Restarts count: " + restarts.get());
     }
 }

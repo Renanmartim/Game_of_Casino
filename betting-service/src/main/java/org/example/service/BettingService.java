@@ -1,12 +1,15 @@
 package org.example.service;
 
+import org.example.dto.Result;
 import org.example.entity.BettingPlayer;
 import org.example.repository.BettingRepository;
+import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.publisher.MonoProcessor;
 
 import java.util.List;
 import java.util.Random;
@@ -15,6 +18,7 @@ import java.util.Random;
 public class BettingService {
 
     private final BettingRepository bettingRepository;
+
 
     private BettingService (BettingRepository bettingRepository) {
         this.bettingRepository = bettingRepository;
@@ -50,9 +54,11 @@ public class BettingService {
 
                     bettingRepository.deleteAll();
 
-                    return Mono.just("The number sorted is: " + randomNumber + ". The value was: " + String.valueOf(valueFinal));
+                    return Mono.just("The number sorted is: " + randomNumber +". The value was: " + String.valueOf(valueFinal));
                 });
     }
+
+
 
     private Integer valueReturnBetting(Integer value, List<BettingPlayer> playerAll) {
         int totalBetAmount = playerAll.stream()
