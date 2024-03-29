@@ -4,13 +4,13 @@ import com.casino.CasinoProject.dto.PlayerBet;
 import com.casino.CasinoProject.entity.Player;
 import com.casino.CasinoProject.service.PlayerService;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import lombok.AllArgsConstructor;
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
-import java.util.List;
+import java.util.Optional;
 
 
 @RestController
@@ -24,22 +24,17 @@ public class PlayerController {
     }
 
     @PostMapping()
-    public ResponseEntity<String> saveNewUser(@RequestBody Player playerNew) {
+    public ResponseEntity<String> saveNewUser(@RequestBody @Valid Player playerNew) {
         var UserNew = playerService.saveNewUser(playerNew);
         return ResponseEntity.ok().body(UserNew);
     }
 
     @PostMapping("/play")
-    public ResponseEntity<String> playGame(@RequestBody PlayerBet Userplay) throws JsonProcessingException {
+    public ResponseEntity<Mono<Optional<Player>>> playGame(@RequestBody PlayerBet Userplay) throws JsonProcessingException {
         var PlayUser = playerService.playLogic(Userplay);
         return ResponseEntity.ok().body(PlayUser);
     }
 
-    @GetMapping
-    public ResponseEntity<List<Player>> allPlayers(){
-        var player = playerService.findAllPlayers();
-        return ResponseEntity.ok().body(player);
-    }
 
 
 }
