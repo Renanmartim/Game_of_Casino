@@ -30,8 +30,8 @@ public class PlayerController {
     }
 
     @PostMapping("/play")
-    public ResponseEntity<Mono<Optional<Player>>> playGame(@RequestBody PlayerBet Userplay) throws JsonProcessingException {
-        var PlayUser = playerService.playLogic(Userplay);
+    public ResponseEntity<Mono<Boolean>> playGame(@RequestBody PlayerBet Userplay) throws JsonProcessingException {
+        var PlayUser = playerService.verifyCpf(Userplay);
         return ResponseEntity.ok().body(PlayUser);
     }
 

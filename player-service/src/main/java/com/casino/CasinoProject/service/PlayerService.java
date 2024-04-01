@@ -35,9 +35,12 @@ public class PlayerService {
         return "Player creaetd Sucess!";
     }
 
-    public Mono<Optional<Player>> playLogic(PlayerBet userplay) {
-        Optional<Player> result =  playerRepository.findByCpf(userplay.getCpf());
-        return Mono.just(result);
+    public Mono<Boolean> verifyCpf(PlayerBet userplay) {
+        return playerRepository.findByCpf(userplay.getCpf())
+                .map(player -> {
+                    return true;
+                })
+                .defaultIfEmpty(false);
     }
 
 }
