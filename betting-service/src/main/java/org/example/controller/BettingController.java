@@ -1,10 +1,13 @@
 package org.example.controller;
 
+import org.example.dto.VerifyCpf;
 import org.example.entity.BettingPlayer;
+import org.example.exception.CpfNotRegistredException;
 import org.example.service.BettingService;
 import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.MonoProcessor;
@@ -22,6 +25,8 @@ import static reactor.core.publisher.Signal.subscribe;
 @RequestMapping("/api/betting")
 public class BettingController {
 
+    private final RestTemplate restTemplate;
+
     private final BettingService bettingService;
     private volatile Mono<String> sortedNumber;
     private final Map<Long, String> playerStatusCache = new ConcurrentHashMap<>();
@@ -32,9 +37,10 @@ public class BettingController {
     private final RedisOperations<Object, Object> redisOperations;
 
 
-    public BettingController(BettingService bettingService, RedisOperations<Object, Object> redisOperations) {
+    public BettingController(BettingService bettingService, RedisOperations<Object, Object> redisOperations,RestTemplate restTemplate) {
         this.bettingService = bettingService;
         this.redisOperations = redisOperations;
+        this.restTemplate = restTemplate;
     }
 
     private final Object drawLockObject = new Object();
@@ -53,6 +59,20 @@ public class BettingController {
     @PostMapping("/start")
     public Flux<ServerSentEvent<String>> startGame(@RequestBody BettingPlayer bettingPlayer) {
         System.out.println("Bet player received: " + bettingPlayer);
+
+        String url = "http://localhost:8987/api/casino/play";
+
+        var cpf = bettingPlayer.getCpf();
+
+        var verify = new VerifyCpf(cpf);
+
+        Boolean search = restTemplate.postForObject(url, verify, Boolean.class);
+
+        if (search == Boolean.FALSE){
+            throw new CpfNotRegistredException("CPF not registered!");
+        }
+
+        System.out.println("Result: " + search);
 
         return Flux.create(sink -> {
             initializeFirstRequestTime();

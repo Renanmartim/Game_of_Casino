@@ -12,7 +12,7 @@ public class BettingPlayer {
     @Id
     private String id;
 
-    private Long cpf;
+    private BigDecimal cpf;
     private Integer bet_value;
     private Long number;
 
@@ -20,11 +20,11 @@ public class BettingPlayer {
         return id;
     }
 
-    public Long getCpf() {
+    public BigDecimal getCpf() {
         return cpf;
     }
 
-    public void setCpf(Long cpf) {
+    public void setCpf(BigDecimal cpf) {
         this.cpf = cpf;
     }
 
