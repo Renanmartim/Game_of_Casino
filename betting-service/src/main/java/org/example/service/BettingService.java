@@ -32,7 +32,6 @@ public class BettingService {
 
     private volatile Mono<String> sortedNumber;
 
-    private final Map<Long, String> playerStatusCache = new ConcurrentHashMap<>();
     private final AtomicBoolean drawLock = new AtomicBoolean(false);
     private final MonoProcessor<Instant> firstRequestTimeProcessor = MonoProcessor.create();
     private final MonoProcessor<String> resultProcessor = MonoProcessor.create();
@@ -48,6 +47,12 @@ public class BettingService {
     public Mono<String> start(BettingPlayer bettingPlayer) {
         return bettingRepository.findByNumber(bettingPlayer.getNumber())
                 .flatMap(existingPlayer -> Mono.just("Error: Player with number " + bettingPlayer.getNumber() + " already exists."))
+                .switchIfEmpty(checkCpfExistence(bettingPlayer));
+    }
+
+    private Mono<String> checkCpfExistence(BettingPlayer bettingPlayer) {
+        return bettingRepository.findByCpf(bettingPlayer.getCpf())
+                .flatMap(existingPlayer -> Mono.just("Error: Player with CPF " + bettingPlayer.getCpf() + " already exists."))
                 .switchIfEmpty(saveNewPlayer(bettingPlayer));
     }
 
@@ -111,6 +116,8 @@ public class BettingService {
         String url = "http://localhost:8987/api/casino/play";
 
         var cpf = bettingPlayer.getCpf();
+
+        final Map<Long, String> playerStatusCache = new ConcurrentHashMap<>();
 
         var verify = new VerifyCpf(cpf);
 
