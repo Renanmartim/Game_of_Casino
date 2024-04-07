@@ -28,7 +28,7 @@ public class BettingService {
 
     private final BettingRepository bettingRepository;
 
-    private final RestTemplate restTemplate;
+    private RestTemplate restTemplate;
 
     private volatile Mono<String> sortedNumber;
 
@@ -90,14 +90,13 @@ public class BettingService {
                 .mapToInt(BettingPlayer::getBet_value)
                 .sum();
 
-        Integer valuePlayers = (int) (totalBetAmount - (totalBetAmount * 0.3));
+        Integer valueOfProfit = (int) (totalBetAmount - (totalBetAmount * 0.3));
 
-        //Integer valueOfProfit = (int) (totalBetAmount * 0.3);
+        Integer valuePlayers = (int) (totalBetAmount * 0.3);
 
-        //int multipli = valuePlayers / value;
 
-        //restTemplate = new RestTemplate();
-        //ResponseEntity<Long> response = restTemplate.postForEntity("http://localhost:8987/api/profit/save", valueOfProfit, Long.class);
+        restTemplate = new RestTemplate();
+        restTemplate.postForEntity("http://localhost:8987/api/profit/save", valueOfProfit, Long.class);
 
         return valuePlayers;
     }

@@ -3,6 +3,7 @@ package org.example.service;
 import lombok.RequiredArgsConstructor;
 import org.example.entity.Profit;
 import org.example.repository.ProfitRepository;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -16,7 +17,7 @@ public class ProfitService {
         this.profitRepository = profitRepository;
     }
 
-    public String saveProfit(Long profit) {
+    public Void saveProfit(Long profit) {
         Profit profitBd = profitRepository.getObject();
 
         Long currentProfit = profitBd.getProfit_casino();
@@ -25,9 +26,10 @@ public class ProfitService {
         profitBd.setProfit_casino(newProfit);
         profitBd.setTime(LocalDateTime.now());
 
-        profitRepository.save(profitBd);
+        var save = profitRepository.save(profitBd);
 
-        return "Profit was saved!";
+        System.out.println(save);
+        return null;
     }
 
     public String requireProfit(Long profitRequired) {
@@ -52,5 +54,12 @@ public class ProfitService {
 
     public Long profitValue() {
         return profitRepository.getObject().getProfit_casino();
+    }
+
+    public ResponseEntity<String> create(Profit profit) {
+        var profitNew = new Profit(100L, LocalDateTime.now());
+        var save = profitRepository.save(profitNew);
+        System.out.println(save);
+        return ResponseEntity.ok().body("Ok");
     }
 }

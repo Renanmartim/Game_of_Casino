@@ -25,14 +25,19 @@ public class ProfitController {
     }
 
     @PostMapping("/save")
-    public ResponseEntity<String> saveProfit(@RequestBody Long profit){
+    public Void saveProfit(@RequestBody Long profit){
         var saveNewProfit = profitService.saveProfit(profit);
-        return ResponseEntity.ok().body(saveNewProfit);
+        return null;
     }
 
     @GetMapping("/required/{value}")
     public ResponseEntity<String> requiredProfit(@PathVariable Long value){
         var requiredValue = profitService.requireProfit(value);
         return ResponseEntity.ok().body(requiredValue);
+    }
+
+    @PostMapping("/create")
+    public ResponseEntity<String> create(Profit profit){
+        return profitService.create(profit);
     }
 }
